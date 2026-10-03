@@ -6,24 +6,42 @@ import (
 
 // ScanDisks 런타임 OS 탐지 및 통합 스캔 수행
 func ScanDisks(useDemo bool) ([]Disk, error) {
-	if useDemo {
-		return GetDemoDisks(), nil
-	}
+	LoadAliases()
 
-	if runtime.GOOS == "windows" {
-		disks, err := ScanWindowsDisks()
-		if err == nil && len(disks) > 0 {
-			return disks, nil
+	var disks []Disk
+	var err error
+
+	if useDemo {
+		disks = GetDemoDisks()
+	} else if runtime.GOOS == "windows" {
+		disks, err = ScanWindowsDisks()
+		if err != nil || len(disks) == 0 {
+			disks = GetDemoDisks()
 		}
 	} else if runtime.GOOS == "linux" {
-		disks, err := ScanLinuxDisks()
-		if err == nil && len(disks) > 0 {
-			return disks, nil
+		disks, err = ScanLinuxDisks()
+		if err != nil || len(disks) == 0 {
+			disks = GetDemoDisks()
+		}
+	} else {
+		disks = GetDemoDisks()
+	}
+
+	// 저장된 사용자 파티션 별칭 및 메모 적용
+	for dIdx := range disks {
+		for pIdx := range disks[dIdx].Partitions {
+			p := &disks[dIdx].Partitions[pIdx]
+			alias, note := GetAlias(p.ID)
+			if alias != "" {
+				p.UserAlias = alias
+			}
+			if note != "" {
+				p.UserNote = note
+			}
 		}
 	}
 
-	// 실제 시스템 스캔 실패 시 데모 데이터 제공
-	return GetDemoDisks(), nil
+	return disks, nil
 }
 
 // GetDemoDisks 사용자분의 슬픈 전설 시나리오(Windows 11 + Ubuntu 24.04 + Arch 무료 공간) 데모 데이터

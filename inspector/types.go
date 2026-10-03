@@ -28,6 +28,8 @@ type Partition struct {
 	OSName      string      // 감지된 OS (e.g. "Windows 11", "Ubuntu 24.04 LTS", "Arch Linux", "None")
 	OSIcon      string      // OS 아이콘 (🪟, 🐧, 🏹, 🎩, 🧭 등)
 	Bootloader  string      // 감지된 부트로더 경로 (e.g., "EFI/ubuntu/grubx64.efi")
+	UserAlias   string      // 사용자가 지정한 커스텀 별칭 (e.g. "내 우분투 메인 파티션")
+	UserNote    string      // 사용자가 남긴 파티션 메모 (e.g. "절대 삭제 금지! 사진 보관됨")
 	Safety      SafetyLevel // 위험도 평가
 	SafetyNote  string      // 위험도 설명 (e.g. "Active Windows OS partition! DO NOT OVERWRITE!")
 	IsEFI       bool        // EFI 시스템 파티션 여부
